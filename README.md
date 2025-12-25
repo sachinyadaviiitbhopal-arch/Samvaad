@@ -1,6 +1,9 @@
 <h1 align="center">✨ Fullstack Chat & Video Calling App ✨</h1>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> dfb3586 (Update project)
 Highlights:
 
 - 🌐 Real-time Messaging with Typing Indicators & Reactions
@@ -12,7 +15,6 @@ Highlights:
 - 🚨 Error Handling (Frontend & Backend)
 - 🚀 Free Deployment
 - 🎯 Built with Scalable Technologies like Stream
-- ⏳ And much more!
 
 ---
 
