@@ -1,32 +1,55 @@
 import { Link } from "react-router";
 import { LANGUAGE_TO_FLAG } from "../constants";
+import { MapPinIcon, MessageSquareIcon, VideoIcon } from "lucide-react";
+import { capitialize } from "../lib/utils";
 
 const FriendCard = ({ friend }) => {
   return (
-    <div className="card bg-base-200 hover:shadow-md transition-shadow">
-      <div className="card-body p-4">
+    <div className="card bg-base-200 hover:shadow-lg transition-all duration-300">
+      <div className="card-body p-5 space-y-4">
         {/* USER INFO */}
-        <div className="flex items-center gap-3 mb-3">
-          <div className="avatar size-12">
+        <div className="flex items-center gap-3">
+          <div className="avatar size-16 rounded-full">
             <img src={friend.profilePic} alt={friend.fullName} />
           </div>
-          <h3 className="font-semibold truncate">{friend.fullName}</h3>
+
+          <div>
+            <h3 className="font-semibold text-lg">{friend.fullName}</h3>
+            {friend.location && (
+              <div className="flex items-center text-xs opacity-70 mt-1">
+                <MapPinIcon className="size-3 mr-1" />
+                {friend.location}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <span className="badge badge-secondary text-xs">
+        {/* LANGUAGES */}
+        <div className="flex flex-wrap gap-1.5">
+          <span className="badge badge-secondary">
             {getLanguageFlag(friend.nativeLanguage)}
-            Native: {friend.nativeLanguage}
+            Native: {capitialize(friend.nativeLanguage)}
           </span>
-          <span className="badge badge-outline text-xs">
+          <span className="badge badge-outline">
             {getLanguageFlag(friend.learningLanguage)}
-            Learning: {friend.learningLanguage}
+            Learning: {capitialize(friend.learningLanguage)}
           </span>
         </div>
 
-        <Link to={`/chat/${friend._id}`} className="btn btn-outline w-full">
-          Message
-        </Link>
+        {/* BIO */}
+        {friend.bio && <p className="text-sm opacity-70 line-clamp-2">{friend.bio}</p>}
+
+        {/* ACTIONS */}
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          <Link to={`/chat/${friend._id}`} className="btn btn-primary">
+            <MessageSquareIcon className="size-4 mr-2" />
+            Message
+          </Link>
+          <Link to={`/call/${friend._id}`} className="btn btn-outline">
+            <VideoIcon className="size-4 mr-2" />
+            Call
+          </Link>
+        </div>
       </div>
     </div>
   );

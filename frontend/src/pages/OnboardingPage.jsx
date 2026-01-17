@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthUser from "../hooks/useAuthUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { completeOnboarding } from "../lib/api";
-import { LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react";
+import { CameraIcon, LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react";
 import { LANGUAGES } from "../constants";
 
 const OnboardingPage = () => {
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
+
+  console.log("OnboardingPage authUser:", authUser);
 
   const [formState, setFormState] = useState({
     fullName: authUser?.fullName || "",
@@ -18,6 +20,20 @@ const OnboardingPage = () => {
     location: authUser?.location || "",
     profilePic: authUser?.profilePic || "",
   });
+
+  useEffect(() => {
+    if (authUser) {
+      setFormState((prev) => ({
+        ...prev,
+        fullName: authUser.fullName || prev.fullName,
+        bio: authUser.bio || prev.bio,
+        nativeLanguage: authUser.nativeLanguage || prev.nativeLanguage,
+        learningLanguage: authUser.learningLanguage || prev.learningLanguage,
+        location: authUser.location || prev.location,
+        profilePic: authUser.profilePic || prev.profilePic,
+      }));
+    }
+  }, [authUser]);
 
   const { mutate: onboardingMutation, isPending } = useMutation({
     mutationFn: completeOnboarding,
@@ -37,12 +53,25 @@ const OnboardingPage = () => {
     onboardingMutation(formState);
   };
 
+  // avataaars: cartoon style
+  // pravatar: real photo (mock)
+  // lorelei: artistic style
+  const [avatarStyle, setAvatarStyle] = useState("avataaars");
+
   const handleRandomAvatar = () => {
-    const idx = Math.floor(Math.random() * 100) + 1; // 1-100 included
-    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    const idx = Math.floor(Math.random() * 1000) + 1;
+    let randomAvatar = "";
+
+    if (avatarStyle === "avataaars") {
+      randomAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${idx}`;
+    } else if (avatarStyle === "pravatar") {
+      randomAvatar = `https://i.pravatar.cc/300?u=${idx}`;
+    } else {
+      randomAvatar = `https://api.dicebear.com/7.x/lorelei/svg?seed=${idx}`;
+    }
 
     setFormState({ ...formState, profilePic: randomAvatar });
-    toast.success("Random profile picture generated!");
+    toast.success(`Generated ${avatarStyle} avatar!`);
   };
 
   return (
@@ -55,12 +84,13 @@ const OnboardingPage = () => {
             {/* PROFILE PIC CONTAINER */}
             <div className="flex flex-col items-center justify-center space-y-4">
               {/* IMAGE PREVIEW */}
-              <div className="size-32 rounded-full bg-base-300 overflow-hidden">
+              <div className="w-32 h-32 rounded-full bg-base-300 overflow-hidden">
                 {formState.profilePic ? (
                   <img
                     src={formState.profilePic}
                     alt="Profile Preview"
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
@@ -70,10 +100,38 @@ const OnboardingPage = () => {
               </div>
 
               {/* Generate Random Avatar BTN */}
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={handleRandomAvatar} className="btn btn-accent">
+              {/* Generate Random Avatar BTN */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="join">
+                  <input
+                    className="join-item btn btn-sm"
+                    type="radio"
+                    name="options"
+                    aria-label="Cartoon"
+                    checked={avatarStyle === "avataaars"}
+                    onChange={() => setAvatarStyle("avataaars")}
+                  />
+                  <input
+                    className="join-item btn btn-sm"
+                    type="radio"
+                    name="options"
+                    aria-label="Photo"
+                    checked={avatarStyle === "pravatar"}
+                    onChange={() => setAvatarStyle("pravatar")}
+                  />
+                  <input
+                    className="join-item btn btn-sm"
+                    type="radio"
+                    name="options"
+                    aria-label="Art"
+                    checked={avatarStyle === "lorelei"}
+                    onChange={() => setAvatarStyle("lorelei")}
+                  />
+                </div>
+
+                <button type="button" onClick={handleRandomAvatar} className="btn btn-accent btn-sm mt-1">
                   <ShuffleIcon className="size-4 mr-2" />
-                  Generate Random Avatar
+                  Generate {avatarStyle === "pravatar" ? "Photo" : "Avatar"}
                 </button>
               </div>
             </div>
